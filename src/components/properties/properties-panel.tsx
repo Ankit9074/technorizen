@@ -377,6 +377,9 @@ export default function PropertiesPanel({
     );
   };
   
+
+  // --------------------------------Dropdown---------START---------------
+
   const renderDropdownProperties = () => {
     if (!selectedComponent) return null;
     
@@ -454,6 +457,10 @@ export default function PropertiesPanel({
     );
   };
   
+ // --------------------------------Dropdown---------END---------------
+
+
+// --------------------------------Relative Date---------START---------------
 
   const [relativeValue, setRelativeValue] = useState(3);
   const [relativeUnit, setRelativeUnit] = useState("Months");
@@ -511,7 +518,8 @@ export default function PropertiesPanel({
     );
   };
   
-  
+// --------------------------------Relative Date---------END---------------
+
   const renderDateRangeProperties = () => {
     if (!selectedComponent) return null;
   
@@ -608,33 +616,43 @@ export default function PropertiesPanel({
     );
   };
   
-  const renderListProperties = () => {
-    if (!selectedComponent) return null;
-    
-    const items = selectedComponent.properties.items || [
+
+// --------------------------------list-list-list---------START---------------
+
+  const [items, setItems] = useState<string[]>([]);
+
+useEffect(() => {
+  if (selectedComponent) {
+    setItems(selectedComponent.properties.items || [
       'List item 1',
       'List item 2',
       'List item 3',
       'List item 4',
       'List item 5'
-    ];
-    
+    ]);
+  }
+}, [selectedComponent]);
+
+  const renderListProperties = () => {
+    if (!selectedComponent) return null;
+  
     return (
       <div className="space-y-4">
         <div className="space-y-2">
           <div className="flex justify-between items-center">
             <Label className="text-xl">List Items</Label>
-            <button 
+            <button
               className="text-xl bg-blue-500 text-white px-2 py-1 rounded"
               onClick={() => {
                 const newItems = [...items, `List item ${items.length + 1}`];
+                setItems(newItems);
                 updateComponentProperties({ items: newItems });
               }}
             >
               Add Item
             </button>
           </div>
-          
+  
           {items.map((item, index) => (
             <div key={index} className="flex items-center space-x-2 mt-2">
               <Input
@@ -642,16 +660,18 @@ export default function PropertiesPanel({
                 onChange={(e) => {
                   const newItems = [...items];
                   newItems[index] = e.target.value;
-                  updateComponentProperties({ items: newItems });
+                  setItems(newItems); // local state update
+                  updateComponentProperties({ items: newItems }); // global update
                 }}
                 className="flex-1 !text-xl"
               />
-              <button 
+              <button
                 className="text-gray-500 text-xl hover:text-red-500"
                 onClick={() => {
                   if (items.length > 1) {
                     const newItems = [...items];
                     newItems.splice(index, 1);
+                    setItems(newItems);
                     updateComponentProperties({ items: newItems });
                   }
                 }}
@@ -662,11 +682,11 @@ export default function PropertiesPanel({
             </div>
           ))}
         </div>
-        
+  
         <div className="space-y-2">
           <Label htmlFor="list-type" className="text-xl">List Type</Label>
-          <Select 
-            value={selectedComponent.properties.listType || "disc"} 
+          <Select
+            value={selectedComponent.properties.listType || "disc"}
             onValueChange={(value) => updateComponentProperties({ listType: value })}
           >
             <SelectTrigger id="list-type">
@@ -685,6 +705,9 @@ export default function PropertiesPanel({
     );
   };
   
+  // --------------------------------list-list-list---------END---------------
+
+
   const renderHeadingProperties = () => {
     if (!selectedComponent) return null;
     
