@@ -380,12 +380,9 @@ export default function PropertiesPanel({
   const renderDropdownProperties = () => {
     if (!selectedComponent) return null;
     
-    const options = selectedComponent.properties.options || [
-      { value: 'option1', label: 'Option 1' },
-      { value: 'option2', label: 'Option 2' },
-      { value: 'option3', label: 'Option 3' }
-    ];
-    
+    const label = selectedComponent.properties.label ?? "My dropdown";
+    const options = selectedComponent.properties.options ?? [];
+  
     return (
       <div className="space-y-4">
         <div className="space-y-2">
@@ -422,7 +419,7 @@ export default function PropertiesPanel({
                 value={option.label}
                 onChange={(e) => {
                   const newOptions = [...options];
-                  newOptions[index] = { ...newOptions[index], label: e.target.value };
+                  newOptions[index].label = e.target.value;
                   updateComponentProperties({ options: newOptions });
                 }}
                 className="flex-1 !text-xl"
