@@ -21,7 +21,8 @@ export default function DashboardBuilder() {
     updateProjectName,
   } = useDashboard();
 
-  const [selectedComponent, setSelectedComponent] = useState<DashboardComponent | null>(null);
+  const [selectedComponent, setSelectedComponent] =
+    useState<DashboardComponent | null>(null);
 
   // Listen for the custom add-component event from the canvas
   useEffect(() => {
@@ -33,31 +34,40 @@ export default function DashboardBuilder() {
     };
 
     // Add event listener
-    window.addEventListener('add-component', handleAddComponent as EventListener);
+    window.addEventListener(
+      "add-component",
+      handleAddComponent as EventListener
+    );
 
     // Clean up
     return () => {
-      window.removeEventListener('add-component', handleAddComponent as EventListener);
+      window.removeEventListener(
+        "add-component",
+        handleAddComponent as EventListener
+      );
     };
   }, [addComponent]);
-  
 
+  useEffect(() => {
+    if (activeDashboard) {
+      setSelectedComponent(activeDashboard.components[0] || null);
+    }
+  });
   return (
     <div className="!h-screen !flex !flex-col !overflow-hidden">
-       <DashboardOldHeader 
-          selectedResolution={null} 
-          deviceResolutions={[]} 
-          onResolutionChange={() => {}} 
-          templateCategories={[]} 
-          onSelectTemplate={() => {}} 
-        />
-
+      <DashboardOldHeader
+        selectedResolution={null}
+        deviceResolutions={[]}
+        onResolutionChange={() => {}}
+        templateCategories={[]}
+        onSelectTemplate={() => {}}
+      />
 
       <div className="!flex !flex-1 !overflow-hidden">
-      <SidebarOld />
+        <SidebarOld />
 
         <Sidebar onElementDrop={addComponent} />
-        
+
         <CanvasArea
           dashboards={project.dashboards}
           activeDashboard={activeDashboard}
@@ -69,7 +79,7 @@ export default function DashboardBuilder() {
           onComponentUpdate={updateComponent}
           onComponentRemove={removeComponent}
         />
-        
+
         <PropertiesPanel
           selectedComponent={selectedComponent}
           onComponentUpdate={updateComponent}

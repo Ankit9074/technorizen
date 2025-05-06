@@ -261,43 +261,64 @@ export default function DashboardComponentDisplay({
     const content = component.properties.content || "Heading";
     const fontWeight = component.properties.fontWeight || "font-bold";
     const alignment = component.properties.alignment || "text-center";
-
+  
+    const divRef = useRef(null);
+  
+    // Set initial content only when component loads or selection changes
+    useEffect(() => {
+      if (divRef.current && divRef.current.textContent !== content) {
+        divRef.current.textContent = content;
+      }
+    }, [content, isSelected]);
+  
+    const handleInput = (e) => {
+      const text = e.currentTarget.textContent || "";
+      handleContentEdit(text); // Update your props
+    };
+  
     return (
-      <div
+      <div 
+        ref={divRef}
         className={`h-full flex items-center ${alignment} ${fontWeight}`}
         style={{
-          justifyContent:
-            textAlign === "center"
-              ? "center"
-              : textAlign === "right"
-              ? "flex-end"
-              : "flex-start",
+          justifyContent: textAlign === 'center' ? 'center' : textAlign === 'right' ? 'flex-end' : 'flex-start'
         }}
         contentEditable={isSelected}
         suppressContentEditableWarning={true}
-        onBlur={(e) => handleContentEdit(e.currentTarget.textContent || "")}
-      >
-        {content}
-      </div>
+        onInput={handleInput}
+      />
     );
   };
-
-  const renderTextBlock = () => {
-    const content =
-      component.properties.content || "Text content goes here. Click to edit.";
-    const alignment = component.properties.alignment || "text-left";
-
-    return (
-      <div
+  
+    
+    const renderTextBlock = () => {
+      const content = component.properties.content || "Text content goes here. Click to edit.";
+      const alignment = component.properties.alignment || "text-left";
+      
+      const divRef = useRef(null);
+  
+    // Set initial content only when component loads or selection changes
+    useEffect(() => {
+      if (divRef.current && divRef.current.textContent !== content) {
+        divRef.current.textContent = content;
+      }
+    }, [content, isSelected]);
+  
+    const handleInput = (e) => {
+      const text = e.currentTarget.textContent || "";
+      handleContentEdit(text); // Update your props
+    };
+  
+      return (
+        <div
+        ref={divRef}
         className={`h-full overflow-auto ${alignment}`}
         contentEditable={isSelected}
-        suppressContentEditableWarning={true}
-        onBlur={(e) => handleContentEdit(e.currentTarget.textContent || "")}
-      >
-        {content}
-      </div>
-    );
-  };
+          suppressContentEditableWarning={true}
+          onInput={handleInput}
+        />
+      );
+    };
 
   const renderParagraph = () => {
     const content =
