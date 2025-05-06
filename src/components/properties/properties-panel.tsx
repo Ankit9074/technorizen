@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DashboardComponent } from "@/lib/types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -454,9 +454,27 @@ export default function PropertiesPanel({
     );
   };
   
+
+  const [relativeValue, setRelativeValue] = useState(3);
+  const [relativeUnit, setRelativeUnit] = useState("Months");
+  
+  useEffect(() => {
+    if (selectedComponent) {
+      setRelativeValue(selectedComponent.properties.value ?? 3);
+      setRelativeUnit(selectedComponent.properties.unit ?? "Months");
+    }
+  }, [selectedComponent]);
+  
+  const handleRelativeChange = (property: string, value: any) => {
+    if (property === "value") setRelativeValue(value);
+    if (property === "unit") setRelativeUnit(value);
+  
+    updateComponentProperties({ [property]: value });
+  };
+  
   const renderRelativeDateProperties = () => {
     if (!selectedComponent) return null;
-    
+  
     return (
       <div className="space-y-4">
         <div className="space-y-2">
@@ -464,17 +482,19 @@ export default function PropertiesPanel({
           <Input
             id="relative-date-value"
             type="number"
-             className="!text-xl"
-            value={selectedComponent.properties.value || 3}
-            onChange={(e) => updateComponentProperties({ value: parseInt(e.target.value) || 1 })}
+            className="!text-xl"
+            value={relativeValue}
+            onChange={(e) =>
+              handleRelativeChange("value", parseInt(e.target.value) || 1)
+            }
           />
         </div>
-        
+  
         <div className="space-y-2">
           <Label htmlFor="relative-date-unit" className="text-xl">Unit</Label>
-          <Select 
-            value={selectedComponent.properties.unit || "Months"} 
-            onValueChange={(value) => updateComponentProperties({ unit: value })}
+          <Select
+            value={relativeUnit}
+            onValueChange={(value) => handleRelativeChange("unit", value)}
           >
             <SelectTrigger id="relative-date-unit">
               <SelectValue placeholder="Select unit" />
@@ -490,6 +510,7 @@ export default function PropertiesPanel({
       </div>
     );
   };
+  
   
   const renderDateRangeProperties = () => {
     if (!selectedComponent) return null;
