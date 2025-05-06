@@ -1,21 +1,21 @@
 import { useRef, useState, useEffect } from "react";
-import { 
-  Copy, 
-  Trash, 
+import {
+  Copy,
+  Trash,
   GripVertical,
   MoveUpRight,
   Calendar,
   CalendarRange,
   Edit,
   List,
-  LayoutGrid
+  LayoutGrid,
 } from "lucide-react";
 import { useDraggable } from "@dnd-kit/core";
 import { DashboardComponent } from "@/lib/types";
-import { 
-  PieChart, 
-  Pie, 
-  Cell, 
+import {
+  PieChart,
+  Pie,
+  Cell,
   ResponsiveContainer,
   LineChart,
   Line,
@@ -23,7 +23,7 @@ import {
   Area,
   BarChart,
   Bar,
-  XAxis, 
+  XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
@@ -32,12 +32,12 @@ import {
   Funnel,
   LabelList,
 } from "recharts";
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue 
+  SelectValue,
 } from "@/components/ui/select";
 
 interface DashboardComponentDisplayProps {
@@ -55,22 +55,32 @@ export default function DashboardComponentDisplay({
   onClick,
   onUpdate,
   onRemove,
-  onDuplicate
+  onDuplicate,
 }: DashboardComponentDisplayProps) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: component.id,
-    data: { type: "component" }
+    data: { type: "component" },
   });
-  
+
   const resizeHandleRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [startPoint, setStartPoint] = useState({ x: 0, y: 0 });
   const [startSize, setStartSize] = useState({ width: 0, height: 0 });
-  
+
   // Get style properties from component.properties
-  const padding = component.properties.padding || { top: 0, right: 0, bottom: 0, left: 0 };
-  const margin = component.properties.margin || { top: 0, right: 0, bottom: 0, left: 0 };
+  const padding = component.properties.padding || {
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+  };
+  const margin = component.properties.margin || {
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+  };
   const paddingStyle = `${padding.top}px ${padding.right}px ${padding.bottom}px ${padding.left}px`;
   const marginStyle = `${margin.top}px ${margin.right}px ${margin.bottom}px ${margin.left}px`;
   const backgroundColor = component.properties.backgroundColor || "white";
@@ -81,14 +91,16 @@ export default function DashboardComponentDisplay({
   const borderWidth = component.properties.borderWidth || 0;
   const borderColor = component.properties.borderColor || "#e5e7eb";
   const borderRadius = component.properties.borderRadius || 0;
-  
+
   const style = {
     position: "absolute" as const,
     top: `${component.y}px`,
     left: `${component.x}px`,
     width: `${component.width}px`,
     height: `${component.height}px`,
-    transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
+    transform: transform
+      ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
+      : undefined,
     backgroundColor,
     color,
     fontFamily,
@@ -99,83 +111,86 @@ export default function DashboardComponentDisplay({
     borderRadius: `${borderRadius}px`,
     borderStyle: borderWidth > 0 ? "solid" : "none",
   };
-  
+
   // Global mouse event handlers for resizing
   useEffect(() => {
     if (isResizing) {
       const handleGlobalMouseMove = (e: MouseEvent) => {
         const dx = e.clientX - startPoint.x;
         const dy = e.clientY - startPoint.y;
-        
+
         onUpdate({
           ...component,
           width: Math.max(200, startSize.width + dx),
-          height: Math.max(100, startSize.height + dy)
+          height: Math.max(100, startSize.height + dy),
         });
       };
-      
+
       const handleGlobalMouseUp = () => {
         setIsResizing(false);
       };
-      
-      document.addEventListener('mousemove', handleGlobalMouseMove);
-      document.addEventListener('mouseup', handleGlobalMouseUp);
-      
+
+      document.addEventListener("mousemove", handleGlobalMouseMove);
+      document.addEventListener("mouseup", handleGlobalMouseUp);
+
       return () => {
-        document.removeEventListener('mousemove', handleGlobalMouseMove);
-        document.removeEventListener('mouseup', handleGlobalMouseUp);
+        document.removeEventListener("mousemove", handleGlobalMouseMove);
+        document.removeEventListener("mouseup", handleGlobalMouseUp);
       };
     }
   }, [isResizing, component, onUpdate, startPoint, startSize]);
-  
+
   // Global mouse event handlers for dragging
   useEffect(() => {
     if (isDragging) {
       const handleGlobalMouseMove = (e: MouseEvent) => {
         const dx = e.clientX - startPoint.x;
         const dy = e.clientY - startPoint.y;
-        
+
         onUpdate({
           ...component,
           x: component.x + dx,
-          y: component.y + dy
+          y: component.y + dy,
         });
-        
+
         setStartPoint({ x: e.clientX, y: e.clientY });
       };
-      
+
       const handleGlobalMouseUp = () => {
         setIsDragging(false);
       };
-      
-      document.addEventListener('mousemove', handleGlobalMouseMove);
-      document.addEventListener('mouseup', handleGlobalMouseUp);
-      
+
+      document.addEventListener("mousemove", handleGlobalMouseMove);
+      document.addEventListener("mouseup", handleGlobalMouseUp);
+
       return () => {
-        document.removeEventListener('mousemove', handleGlobalMouseMove);
-        document.removeEventListener('mouseup', handleGlobalMouseUp);
+        document.removeEventListener("mousemove", handleGlobalMouseMove);
+        document.removeEventListener("mouseup", handleGlobalMouseUp);
       };
     }
   }, [isDragging, component, onUpdate, startPoint]);
-  
+
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     // Check if we're clicking on the resize handle
-    if (resizeHandleRef.current && resizeHandleRef.current.contains(e.target as Node)) {
+    if (
+      resizeHandleRef.current &&
+      resizeHandleRef.current.contains(e.target as Node)
+    ) {
       e.stopPropagation(); // Prevent triggering component selection
       setIsResizing(true);
       setStartPoint({ x: e.clientX, y: e.clientY });
       setStartSize({ width: component.width, height: component.height });
     }
   };
-  
+
   const handleDragHandleMouseDown = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering component selection
     setIsDragging(true);
     setStartPoint({ x: e.clientX, y: e.clientY });
   };
-  
+
   const renderComponentContent = () => {
-    switch(component.elementType) {
+    switch (component.elementType) {
       case "pie-chart":
         return renderPieChart();
       case "line-chart":
@@ -219,31 +234,45 @@ export default function DashboardComponentDisplay({
       case "list":
         return renderList();
       default:
-        return <div className="text-center p-4 h-full flex items-center justify-center">{component.name}</div>;
+        return (
+          <div className="text-center p-4 h-full flex items-center justify-center">
+            {component.name}
+          </div>
+        );
     }
   };
-  
+
   const handleContentEdit = (value: string) => {
-    if (component.elementType === "heading" || component.elementType === "text-block") {
+    if (
+      component.elementType === "heading" ||
+      component.elementType === "text-block"
+    ) {
       onUpdate({
         ...component,
         properties: {
           ...component.properties,
-          content: value
-        }
+          content: value,
+        },
       });
     }
   };
-  
+
   const renderHeading = () => {
     const content = component.properties.content || "Heading";
     const fontWeight = component.properties.fontWeight || "font-bold";
     const alignment = component.properties.alignment || "text-center";
-    
+
     return (
-      <div 
+      <div
         className={`h-full flex items-center ${alignment} ${fontWeight}`}
-        style={{ justifyContent: textAlign === 'center' ? 'center' : textAlign === 'right' ? 'flex-end' : 'flex-start' }}
+        style={{
+          justifyContent:
+            textAlign === "center"
+              ? "center"
+              : textAlign === "right"
+              ? "flex-end"
+              : "flex-start",
+        }}
         contentEditable={isSelected}
         suppressContentEditableWarning={true}
         onBlur={(e) => handleContentEdit(e.currentTarget.textContent || "")}
@@ -252,13 +281,14 @@ export default function DashboardComponentDisplay({
       </div>
     );
   };
-  
+
   const renderTextBlock = () => {
-    const content = component.properties.content || "Text content goes here. Click to edit.";
+    const content =
+      component.properties.content || "Text content goes here. Click to edit.";
     const alignment = component.properties.alignment || "text-left";
-    
+
     return (
-      <div 
+      <div
         className={`h-full overflow-auto ${alignment}`}
         contentEditable={isSelected}
         suppressContentEditableWarning={true}
@@ -268,13 +298,15 @@ export default function DashboardComponentDisplay({
       </div>
     );
   };
-  
+
   const renderParagraph = () => {
-    const content = component.properties.content || "Paragraph text goes here. Click to edit.";
+    const content =
+      component.properties.content ||
+      "Paragraph text goes here. Click to edit.";
     const alignment = component.properties.alignment || "text-left";
-    
+
     return (
-      <div 
+      <div
         className={`h-full overflow-auto ${alignment}`}
         contentEditable={isSelected}
         suppressContentEditableWarning={true}
@@ -284,11 +316,11 @@ export default function DashboardComponentDisplay({
       </div>
     );
   };
-  
+
   const renderPieChart = () => {
     const data = component.properties.data || [];
-    const COLORS = ['#4338ca', '#818cf8', '#93c5fd', '#60a5fa', '#3b82f6'];
-    
+    const COLORS = ["#4338ca", "#818cf8", "#93c5fd", "#60a5fa", "#3b82f6"];
+
     return (
       <div className="h-full">
         <ResponsiveContainer width="100%" height="100%">
@@ -302,10 +334,15 @@ export default function DashboardComponentDisplay({
               fill="#8884d8"
               dataKey="value"
               nameKey="label"
-              label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+              label={({ name, percent }) =>
+                `${name} ${(percent * 100).toFixed(0)}%`
+              }
             >
               {data.map((entry: any, index: number) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                <Cell
+                  key={`cell-${index}`}
+                  fill={COLORS[index % COLORS.length]}
+                />
               ))}
             </Pie>
             <Tooltip />
@@ -318,7 +355,7 @@ export default function DashboardComponentDisplay({
 
   const renderLineChart = () => {
     const data = component.properties.data || [];
-    
+
     return (
       <div className="h-full">
         <ResponsiveContainer width="100%" height="100%">
@@ -337,10 +374,10 @@ export default function DashboardComponentDisplay({
       </div>
     );
   };
-  
+
   const renderAreaChart = () => {
     const data = component.properties.data || [];
-    
+
     return (
       <div className="h-full">
         <ResponsiveContainer width="100%" height="100%">
@@ -352,16 +389,21 @@ export default function DashboardComponentDisplay({
             <XAxis dataKey="label" />
             <YAxis />
             <Tooltip />
-            <Area type="monotone" dataKey="value" stroke="#8884d8" fill="#8884d8" />
+            <Area
+              type="monotone"
+              dataKey="value"
+              stroke="#8884d8"
+              fill="#8884d8"
+            />
           </AreaChart>
         </ResponsiveContainer>
       </div>
     );
   };
-  
+
   const renderBarChart = () => {
     const data = component.properties.data || [];
-    
+
     return (
       <div className="h-full">
         <ResponsiveContainer width="100%" height="100%">
@@ -381,10 +423,10 @@ export default function DashboardComponentDisplay({
       </div>
     );
   };
-  
+
   const renderColumnChart = () => {
     const data = component.properties.data || [];
-    
+
     return (
       <div className="h-full">
         <ResponsiveContainer width="100%" height="100%">
@@ -403,20 +445,22 @@ export default function DashboardComponentDisplay({
       </div>
     );
   };
-  
+
   const renderFunnelChart = () => {
     const data = component.properties.funnelSteps || [
-      { name: 'Jan', value: 400 },
-      { name: 'Feb', value: 300 },
-      { name: 'Mar', value: 200 },
-      { name: 'Apr', value: 278 },
-      { name: 'May', value: 189 }
+      { name: "Jan", value: 400 },
+      { name: "Feb", value: 300 },
+      { name: "Mar", value: 200 },
+      { name: "Apr", value: 278 },
+      { name: "May", value: 189 },
     ];
-    
+
     return (
       <div className="h-full">
         <div className="mb-2">
-          <h3 className="text-lg font-bold">{component.properties.title || "Title goes here"}</h3>
+          <h3 className="text-lg font-bold">
+            {component.properties.title || "Title goes here"}
+          </h3>
         </div>
         <ResponsiveContainer width="100%" height="85%">
           <FunnelChart>
@@ -426,8 +470,18 @@ export default function DashboardComponentDisplay({
               data={data}
               isAnimationActive
             >
-              <LabelList position="right" fill="#000" stroke="none" dataKey="name" />
-              <LabelList position="center" fill="#fff" stroke="none" dataKey="value" />
+              <LabelList
+                position="right"
+                fill="#000"
+                stroke="none"
+                dataKey="name"
+              />
+              <LabelList
+                position="center"
+                fill="#fff"
+                stroke="none"
+                dataKey="value"
+              />
             </Funnel>
             <Tooltip />
           </FunnelChart>
@@ -438,7 +492,7 @@ export default function DashboardComponentDisplay({
 
   const renderStackedBarChart = () => {
     const data = component.properties.data || [];
-    
+
     return (
       <div className="h-full">
         <ResponsiveContainer width="100%" height="100%">
@@ -458,47 +512,57 @@ export default function DashboardComponentDisplay({
       </div>
     );
   };
-  
+
   const renderScorecard = () => {
     const value = component.properties.value || "0";
     const label = component.properties.label || "Metric";
     const trend = component.properties.trend || 0;
-    
+
     return (
       <div className="h-full flex flex-col justify-center items-center p-4">
         <div className="text-4xl font-bold">{value}</div>
         <div className="text-sm text-gray-500">{label}</div>
         {trend !== 0 && (
-          <div className={`flex items-center mt-2 ${trend > 0 ? 'text-green-500' : 'text-red-500'}`}>
-            {trend > 0 ? <MoveUpRight className="h-4 w-4 mr-1" /> : <MoveUpRight className="h-4 w-4 mr-1 transform rotate-90" />}
+          <div
+            className={`flex items-center mt-2 ${
+              trend > 0 ? "text-green-500" : "text-red-500"
+            }`}
+          >
+            {trend > 0 ? (
+              <MoveUpRight className="h-4 w-4 mr-1" />
+            ) : (
+              <MoveUpRight className="h-4 w-4 mr-1 transform rotate-90" />
+            )}
             <span>{Math.abs(trend)}%</span>
           </div>
         )}
       </div>
     );
   };
-  
+
   const renderDropdown = () => {
     const options = component.properties.options || [
-      { value: 'option1', label: 'Option 1' },
-      { value: 'option2', label: 'Option 2' },
-      { value: 'option3', label: 'Option 3' }
+      { value: "option1", label: "Option 1" },
+      { value: "option2", label: "Option 2" },
+      { value: "option3", label: "Option 3" },
     ];
-    
+
     const handleSelectChange = (value: string) => {
       onUpdate({
         ...component,
         properties: {
           ...component.properties,
-          selectedValue: value
-        }
+          selectedValue: value,
+        },
       });
     };
-    
+
     return (
       <div className="h-full p-2">
-        <div className="mb-2">{component.properties.label || "My dropdown"}</div>
-        <Select 
+        <div className="mb-2">
+          {component.properties.label || "My dropdown"}
+        </div>
+        <Select
           value={component.properties.selectedValue || options[0].value}
           onValueChange={handleSelectChange}
           disabled={!isSelected}
@@ -507,7 +571,7 @@ export default function DashboardComponentDisplay({
             <SelectValue placeholder="Select option" />
           </SelectTrigger>
           <SelectContent>
-            {options.map(option => (
+            {options.map((option) => (
               <SelectItem key={option.value} value={option.value}>
                 {option.label}
               </SelectItem>
@@ -517,26 +581,26 @@ export default function DashboardComponentDisplay({
       </div>
     );
   };
-  
+
   // This function is already defined above, so we'll remove this duplicate
-  
+
   const renderTextLink = () => {
     const text = component.properties.text || "Click here";
     const url = component.properties.url || "#";
-    
+
     const handleTextEdit = (newText: string) => {
       onUpdate({
         ...component,
         properties: {
           ...component.properties,
-          text: newText
-        }
+          text: newText,
+        },
       });
     };
-    
+
     return (
       <div className="h-full flex items-center p-2">
-        <a 
+        <a
           href={url}
           className="text-blue-500 hover:underline cursor-pointer"
           contentEditable={isSelected}
@@ -549,11 +613,11 @@ export default function DashboardComponentDisplay({
       </div>
     );
   };
-  
+
   const renderRelativeDate = () => {
     const value = component.properties.value || 3;
     const unit = component.properties.unit || "Months";
-    
+
     return (
       <div className="h-full flex items-center p-2">
         <div className="flex items-center">
@@ -561,15 +625,15 @@ export default function DashboardComponentDisplay({
           <div className="border p-2 rounded bg-gray-50 min-w-[50px] text-center">
             {value}
           </div>
-          <Select 
+          <Select
             value={unit}
             onValueChange={(newUnit) => {
               onUpdate({
                 ...component,
                 properties: {
                   ...component.properties,
-                  unit: newUnit
-                }
+                  unit: newUnit,
+                },
               });
             }}
             disabled={!isSelected}
@@ -588,16 +652,17 @@ export default function DashboardComponentDisplay({
       </div>
     );
   };
-  
+
   const renderDateRange = () => {
-    // Use current date as default
     const today = new Date();
     const nextWeek = new Date(today);
     nextWeek.setDate(today.getDate() + 7);
-    
-    const startDate = component.properties.startDate || today.toLocaleDateString();
-    const endDate = component.properties.endDate || nextWeek.toLocaleDateString();
-    
+
+    const startDate =
+      component.properties.startDate || today.toISOString().split("T")[0];
+    const endDate =
+      component.properties.endDate || nextWeek.toISOString().split("T")[0];
+
     return (
       <div className="h-full flex items-center p-2">
         <div className="flex items-center">
@@ -609,7 +674,7 @@ export default function DashboardComponentDisplay({
       </div>
     );
   };
-  
+
   const renderSection = () => {
     return (
       <section className="h-full border-2 border-dashed border-gray-300 rounded p-4 flex items-center justify-center">
@@ -619,7 +684,7 @@ export default function DashboardComponentDisplay({
       </section>
     );
   };
-  
+
   const renderContainer = () => {
     return (
       <div className="h-full border-2 border-dashed border-gray-300 rounded p-4 flex items-center justify-center">
@@ -629,48 +694,66 @@ export default function DashboardComponentDisplay({
       </div>
     );
   };
-  
+
   const renderGrid = () => {
     return (
       <div className="h-full border-2 border-dashed border-gray-300 rounded p-4">
         <div className="grid grid-cols-3 gap-4 h-full">
-          <div className="border border-gray-300 rounded flex items-center justify-center">1</div>
-          <div className="border border-gray-300 rounded flex items-center justify-center">2</div>
-          <div className="border border-gray-300 rounded flex items-center justify-center">3</div>
-          <div className="border border-gray-300 rounded flex items-center justify-center">4</div>
-          <div className="border border-gray-300 rounded flex items-center justify-center">5</div>
-          <div className="border border-gray-300 rounded flex items-center justify-center">6</div>
+          <div className="border border-gray-300 rounded flex items-center justify-center">
+            1
+          </div>
+          <div className="border border-gray-300 rounded flex items-center justify-center">
+            2
+          </div>
+          <div className="border border-gray-300 rounded flex items-center justify-center">
+            3
+          </div>
+          <div className="border border-gray-300 rounded flex items-center justify-center">
+            4
+          </div>
+          <div className="border border-gray-300 rounded flex items-center justify-center">
+            5
+          </div>
+          <div className="border border-gray-300 rounded flex items-center justify-center">
+            6
+          </div>
         </div>
       </div>
     );
   };
-  
+
   const renderColumns = () => {
     return (
       <div className="h-full border-2 border-dashed border-gray-300 rounded p-4">
         <div className="flex h-full">
-          <div className="flex-1 border border-gray-300 rounded mr-2 flex items-center justify-center">Column 1</div>
-          <div className="flex-1 border border-gray-300 rounded mx-2 flex items-center justify-center">Column 2</div>
-          <div className="flex-1 border border-gray-300 rounded ml-2 flex items-center justify-center">Column 3</div>
+          <div className="flex-1 border border-gray-300 rounded mr-2 flex items-center justify-center">
+            Column 1
+          </div>
+          <div className="flex-1 border border-gray-300 rounded mx-2 flex items-center justify-center">
+            Column 2
+          </div>
+          <div className="flex-1 border border-gray-300 rounded ml-2 flex items-center justify-center">
+            Column 3
+          </div>
         </div>
       </div>
     );
   };
-  
+
   const renderList = () => {
     const items = component.properties.items || [
-      'List item 1',
-      'List item 2',
-      'List item 3',
-      'List item 4',
-      'List item 5'
+      "List item 1",
+      "List item 2",
+      "List item 3",
+      "List item 4",
+      "List item 5",
     ];
-    
+
     return (
       <div className="h-full p-2 overflow-auto">
         <ul className="list-disc pl-5">
           {items.map((item, index) => (
-            <li 
+            <li
               key={index}
               className="mb-2"
               contentEditable={isSelected}
@@ -683,8 +766,8 @@ export default function DashboardComponentDisplay({
                     ...component,
                     properties: {
                       ...component.properties,
-                      items: newItems
-                    }
+                      items: newItems,
+                    },
                   });
                 }
               }}
@@ -696,38 +779,44 @@ export default function DashboardComponentDisplay({
       </div>
     );
   };
-  
+
   const renderTable = () => {
     const tableData = component.properties.tableData || [
-      { name: 'Jan', value: '400' },
-      { name: 'Feb', value: '300' },
-      { name: 'Mar', value: '200' },
-      { name: 'Apr', value: '278' },
-      { name: 'May', value: '189' }
+      { name: "Jan", value: "400" },
+      { name: "Feb", value: "300" },
+      { name: "Mar", value: "200" },
+      { name: "Apr", value: "278" },
+      { name: "May", value: "189" },
     ];
-    
-    const columns = component.properties.columns || ['name', 'value'];
-    
-    const handleCellEdit = (rowIndex: number, colKey: string, newValue: string) => {
+
+    const columns = component.properties.columns || ["name", "value"];
+
+    const handleCellEdit = (
+      rowIndex: number,
+      colKey: string,
+      newValue: string
+    ) => {
       const newTableData = [...tableData];
       newTableData[rowIndex] = {
         ...newTableData[rowIndex],
-        [colKey]: newValue
+        [colKey]: newValue,
       };
-      
+
       onUpdate({
         ...component,
         properties: {
           ...component.properties,
-          tableData: newTableData
-        }
+          tableData: newTableData,
+        },
       });
     };
-    
+
     return (
       <div className="h-full p-2 overflow-auto">
         <div className="mb-2">
-          <h3 className="text-lg font-bold mb-2">{component.properties.title || "My table"}</h3>
+          <h3 className="text-lg font-bold mb-2">
+            {component.properties.title || "My table"}
+          </h3>
           {isSelected && (
             <button className="px-3 py-1 bg-gray-100 rounded text-sm mb-2 hover:bg-gray-200">
               Edit Columns
@@ -748,12 +837,18 @@ export default function DashboardComponentDisplay({
             {tableData.map((row, rowIndex) => (
               <tr key={rowIndex}>
                 {columns.map((col, colIndex) => (
-                  <td 
-                    key={`${rowIndex}-${colIndex}`} 
+                  <td
+                    key={`${rowIndex}-${colIndex}`}
                     className="border p-2"
                     contentEditable={isSelected}
                     suppressContentEditableWarning={true}
-                    onBlur={(e) => handleCellEdit(rowIndex, col, e.currentTarget.textContent || "")}
+                    onBlur={(e) =>
+                      handleCellEdit(
+                        rowIndex,
+                        col,
+                        e.currentTarget.textContent || ""
+                      )
+                    }
                   >
                     {row[col]}
                   </td>
@@ -765,7 +860,7 @@ export default function DashboardComponentDisplay({
       </div>
     );
   };
-  
+
   return (
     <div
       ref={setNodeRef}
@@ -776,7 +871,7 @@ export default function DashboardComponentDisplay({
       onClick={onClick}
     >
       {/* Component content takes full height */}
-      <div 
+      <div
         className="w-full h-full overflow-hidden"
         style={{
           padding: paddingStyle,
@@ -785,17 +880,17 @@ export default function DashboardComponentDisplay({
       >
         {renderComponentContent()}
       </div>
-      
+
       {/* Control buttons that only show when selected */}
       {isSelected && (
         <div className="absolute top-0 right-0 bg-white border border-gray-200 rounded-bl-md shadow-sm flex items-center z-10">
-          <div 
+          <div
             className="drag-handle p-2 cursor-move"
             onMouseDown={handleDragHandleMouseDown}
           >
             <GripVertical className="h-6 w-6 text-gray-400" />
           </div>
-          <button 
+          <button
             className="p-1 text-gray-400 hover:text-gray-600"
             title="Duplicate"
             onClick={(e) => {
@@ -807,7 +902,7 @@ export default function DashboardComponentDisplay({
           >
             <Copy className="h-6 w-6" />
           </button>
-          <button 
+          <button
             className="p-1 text-gray-400 hover:text-red-600"
             title="Delete"
             onClick={(e) => {
@@ -821,11 +916,11 @@ export default function DashboardComponentDisplay({
           </button>
         </div>
       )}
-      
+
       {/* Resize handle that only shows when selected */}
       {isSelected && (
-        <div 
-          ref={resizeHandleRef} 
+        <div
+          ref={resizeHandleRef}
           className="resize-handle resize-handle-se"
           onMouseDown={(e) => {
             e.stopPropagation();

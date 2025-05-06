@@ -493,15 +493,18 @@ export default function PropertiesPanel({
   
   const renderDateRangeProperties = () => {
     if (!selectedComponent) return null;
-    
-    // Use current date as default
+  
     const today = new Date();
     const nextWeek = new Date(today);
     nextWeek.setDate(today.getDate() + 7);
-    
-    const startDate = selectedComponent.properties.startDate || today.toLocaleDateString();
-    const endDate = selectedComponent.properties.endDate || nextWeek.toLocaleDateString();
-    
+  
+    const startDate =
+      selectedComponent.properties.startDate ||
+      today.toISOString().split('T')[0]; // YYYY-MM-DD
+    const endDate =
+      selectedComponent.properties.endDate ||
+      nextWeek.toISOString().split('T')[0]; // YYYY-MM-DD
+  
     return (
       <div className="space-y-4">
         <div className="space-y-2">
@@ -509,25 +512,30 @@ export default function PropertiesPanel({
           <Input
             id="date-range-start"
             type="date"
-             className="!text-xl"
+            className="!text-xl"
             value={startDate}
-            onChange={(e) => updateComponentProperties({ startDate: e.target.value })}
+            onChange={(e) =>
+              updateComponentProperties({ startDate: e.target.value })
+            }
           />
         </div>
-        
+  
         <div className="space-y-2">
           <Label htmlFor="date-range-end" className="text-xl">End Date</Label>
           <Input
             id="date-range-end"
-             className="!text-xl"
             type="date"
+            className="!text-xl"
             value={endDate}
-            onChange={(e) => updateComponentProperties({ endDate: e.target.value })}
+            onChange={(e) =>
+              updateComponentProperties({ endDate: e.target.value })
+            }
           />
         </div>
       </div>
     );
   };
+  
   
   const renderLayoutProperties = () => {
     if (!selectedComponent) return null;
