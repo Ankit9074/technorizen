@@ -93,6 +93,23 @@ export default function DashboardBuilder() {
           onComponentRemove={removeComponent}
         />
       </div>
+
+      {/* Submit Button */}
+      <div className="!p-4 !flex !justify-end">
+        <button
+          className="!bg-blue-500 !text-white !px-4 !py-2 !rounded hover:!bg-blue-600"
+          onClick={() => {
+            const payload = {
+              projectName: project.name,
+              dashboards: project.dashboards,
+              activeDashboardId: activeDashboard?.id,
+            };
+            console.log("Payload:", payload);
+          }}
+        >
+          Submit
+        </button>
+      </div>
     </div>
   );
 }
