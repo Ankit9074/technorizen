@@ -49,10 +49,17 @@ export default function DashboardBuilder() {
   }, [addComponent]);
 
   useEffect(() => {
-    if (activeDashboard) {
+    if (!activeDashboard) return;
+    const stillExists = activeDashboard.components.find(
+      (comp) => comp.id === selectedComponent?.id
+    );
+    if (stillExists) {
+      setSelectedComponent(stillExists);
+    } else {
       setSelectedComponent(activeDashboard.components[0] || null);
     }
-  });
+  }, [activeDashboard, selectedComponent?.id]);
+  
   return (
     <div className="!h-screen !flex !flex-col !overflow-hidden">
       <DashboardOldHeader
