@@ -4,13 +4,30 @@ import { History } from "lucide-react";
 import demojpg from "../../assets/imgs/demo.jpg";
 import demo2jpg from "../../assets/imgs/demo2.jpg";
 import demo3jpg from "../../assets/imgs/demo3.jpg";
+import { supabase } from "@/integrations/supabase/client";
 
 const DashboardLanding = () => {
   const [activeTab, setActiveTab] = useState("active");
-
+  const [projects, setProjects] = useState([]);
   const showTab = (tabId) => {
     setActiveTab(tabId);
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data, error } = await supabase
+        .from("projects") // Replace with your actual table name
+        .select("*");
+
+      if (error) {
+        console.error("Error fetching projects:", error);
+      } else {
+        setProjects(data); // 🟢 Step 2: Store data in state
+      }
+    };
+
+    fetchData();
+  }, []);
   return (
     <>
       <div className="dashboard-content-one">
@@ -60,6 +77,13 @@ const DashboardLanding = () => {
                 activeTab === "active" ? "show" : "d-none"
               }`}
             >
+              {projects?.map((project) =>
+                project.dashboards?.map((dashboard) =>
+                  dashboard.components?.map((component) => (
+                    <h1 key={component.id}>{component.properties?.content}</h1>
+                  ))
+                )
+              )}
               <div className="card border">
                 <div className="card-body">
                   <div className="row g-4">

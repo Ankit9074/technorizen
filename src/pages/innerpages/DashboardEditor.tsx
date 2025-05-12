@@ -7,6 +7,7 @@ import { useDashboard } from "@/hooks/use-dashboard";
 import { DashboardComponent } from "@/lib/types";
 import { DashboardOldHeader } from "@/components/dashboard/header/Old_DashboardHeader copy";
 import Sidebar from "@/components/sidebar/sidebar";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function DashboardBuilder() {
   const {
@@ -33,13 +34,11 @@ export default function DashboardBuilder() {
       }
     };
 
-    // Add event listener
     window.addEventListener(
       "add-component",
       handleAddComponent as EventListener
     );
 
-    // Clean up
     return () => {
       window.removeEventListener(
         "add-component",
@@ -59,7 +58,34 @@ export default function DashboardBuilder() {
       setSelectedComponent(activeDashboard.components[0] || null);
     }
   }, [activeDashboard, selectedComponent?.id]);
-  
+
+  const handleSubmit = async () => {
+    const payload = {
+      projectName: project.name,
+      dashboards: project.dashboards,
+      activeDashboardId: activeDashboard?.id,
+    };
+
+    console.log("Payload:", payload);
+
+    try {
+      const { data, error } = await supabase
+        .from("projects")
+        .insert([payload]);
+
+      if (error) {
+        console.error("Error inserting payload:", error);
+        alert("Failed to submit data.");
+      } else {
+        console.log("Payload successfully submitted:", data);
+        alert("Data submitted successfully!");
+      }
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      alert("An unexpected error occurred.");
+    }
+  };
+
   return (
     <div className="!h-screen !flex !flex-col !overflow-hidden">
       <DashboardOldHeader
@@ -72,7 +98,6 @@ export default function DashboardBuilder() {
 
       <div className="!flex !flex-1 !overflow-hidden">
         <SidebarOld />
-
         <Sidebar onElementDrop={addComponent} />
 
         <CanvasArea
@@ -98,14 +123,7 @@ export default function DashboardBuilder() {
       <div className="!p-4 !flex !justify-end">
         <button
           className="!bg-blue-500 !text-white !px-4 !py-2 !rounded hover:!bg-blue-600"
-          onClick={() => {
-            const payload = {
-              projectName: project.name,
-              dashboards: project.dashboards,
-              activeDashboardId: activeDashboard?.id,
-            };
-            console.log("Payload:", payload);
-          }}
+          onClick={handleSubmit}
         >
           Submit
         </button>
